@@ -9,8 +9,22 @@ jobs:
     
     steps:
       - name: Install dependencies
-        run: git clone --depth=1 --single-branch -b main https://github.com/XTLS/libXray.git
+        run: |
+          git clone --depth=1 --single-branch -b main https://github.com/XTLS/libXray.git
+
+          git clone --depth 1 --branch v26.2.6 https://github.com/XTLS/Xray-core.git ../Xray-core-libXray
+          go mod init github.com/xtls/libxray
+          go mod edit -replace github.com/xtls/xray-core=../Xray-core-libXray
+          go mod tidy
+          go run download_geo/main.go
+
+          cp build/template/main.go ./
+          sed -i 's/package libXray/package main/g' *.go
+
+          CGO_ENABLED=1 GOOS=linux go build -trimpath -ldflags="-s -w" -buildmode=c-archive -o libXray.a .
 
       - name: check
-        run: ls
+        run: |
+          ls
+          ls libxray
       
