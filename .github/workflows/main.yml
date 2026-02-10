@@ -1,0 +1,16 @@
+name: build core
+
+on: 
+  push:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install dependencies
+        run: git clone --depth=1 --single-branch -b main https://github.com/XTLS/libXray.git
+
+      - name: check
+        run: ls
+      
