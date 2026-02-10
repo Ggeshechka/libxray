@@ -2,29 +2,51 @@ name: build core
 
 on: 
   push:
+  workflow_dispatch: # Позволяет запускать вручную
 
 jobs:
   linux:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Install dependencies
-        run: |
-          git clone --depth=1 --single-branch -b main https://github.com/XTLS/libXray.git
+      - name: Checkout libXray
+        uses: actions/checkout@v4
+        with:
+          path: libxray # Клонируем в подпапку для удобства работы с путями
 
-          git clone --depth 1 --branch v26.2.6 https://github.com/XTLS/Xray-core.git ../Xray-core-libXray
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22' # Рекомендуется указать версию
+
+      - name: Prepare environment and build
+        run: |
+          # 1. Клонируем Xray-core на том же уровне, что и libxray (как требует build.py)
+          git clone --depth 1 --branch v26.2.6 https://github.com/XTLS/Xray-core.git Xray-core-libXray
+          
+          cd libxray
+          
+          # 2. Инициализация окружения Go
+          rm -f go.mod go.sum
           go mod init github.com/xtls/libxray
-          go mod edit -replace github.com/xtls/xray-core=../Xray-core-libXray
+          go mod edit -replace github.com/xtls/xray-core=../../Xray-core-libXray
           go mod tidy
+          
+          # 3. Загрузка Geo ресурсов
           go run download_geo/main.go
-
+          
+          # 4. Подготовка файлов для c-archive
           cp build/template/main.go ./
+          # Заменяем имя пакета только в корневых файлах
           sed -i 's/package libXray/package main/g' *.go
+          
+          # 5. Сборка статического архива
+          CGO_ENABLED=1 GOOS=linux go build -v -trimpath -ldflags="-s -w" -buildmode=c-archive -o libXray.a .
 
-          CGO_ENABLED=1 GOOS=linux go build -trimpath -ldflags="-s -w" -buildmode=c-archive -o libXray.a .
-
-      - name: check
-        run: |
-          ls
-          ls libxray
-      
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libxray-linux-static
+          path: |
+            libxray/libXray.a
+            libxray/libXray.h
