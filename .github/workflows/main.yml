@@ -13,7 +13,7 @@ jobs:
           python3 libxray/build/main.py linux
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: linux
           path: libxray/bin/xray
@@ -27,7 +27,7 @@ jobs:
           python3 libxray/build/main.py android
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: android
           path: libxray/libXray.aar
