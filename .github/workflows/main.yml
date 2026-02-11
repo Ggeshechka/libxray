@@ -25,6 +25,9 @@ jobs:
 
       - name: Setup Go
         uses: actions/setup-go@v6.2.0
+        with:
+          go-version: 'stable' 
+          check-latest: true
         
       - name: Install Gomobile and NDK
         run: |
