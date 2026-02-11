@@ -1,52 +1,18 @@
 name: build core
 
 on: 
-  push:
-  workflow_dispatch: # Позволяет запускать вручную
+  push: 
 
 jobs:
   linux:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout libXray
-        uses: actions/checkout@v4
-        with:
-          path: libxray # Клонируем в подпапку для удобства работы с путями
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.22' # Рекомендуется указать версию
-
-      - name: Prepare environment and build
+      - name: build
         run: |
-          # 1. Клонируем Xray-core на том же уровне, что и libxray (как требует build.py)
-          git clone --depth 1 --branch v26.2.6 https://github.com/XTLS/Xray-core.git Xray-core-libXray
-          
-          cd libxray
-          
-          # 2. Инициализация окружения Go
-          rm -f go.mod go.sum
-          go mod init github.com/xtls/libxray
-          go mod edit -replace github.com/xtls/xray-core=../../Xray-core-libXray
-          go mod tidy
-          
-          # 3. Загрузка Geo ресурсов
-          go run download_geo/main.go
-          
-          # 4. Подготовка файлов для c-archive
-          cp build/template/main.go ./
-          # Заменяем имя пакета только в корневых файлах
-          sed -i 's/package libXray/package main/g' *.go
-          
-          # 5. Сборка статического архива
-          CGO_ENABLED=1 GOOS=linux go build -v -trimpath -ldflags="-s -w" -buildmode=c-archive -o libXray.a .
+          git clone --depth=1 --single-branch -b main https://github.com/xtls/libxray.git
+          python3 libxray/build/main.py linux
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v6.0.0
         with:
-          name: libxray-linux-static
-          path: |
-            libxray/libXray.a
-            libxray/libXray.h
+          path: libxray/bin/xray
