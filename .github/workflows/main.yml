@@ -41,9 +41,24 @@ jobs:
           export ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME
           python3 libxray/build/main.py android
 
-
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v6.0.0
         with:
           name: android
           path: libxray/libXray.aar
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: build
+        run: |
+          git clone --depth=1 --single-branch -b main https://github.com/xtls/libxray.git
+          python libxray/build/main.py windows
+          ls
+          ls libxray
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: windows
+          path: libxray/**/*.dll  
