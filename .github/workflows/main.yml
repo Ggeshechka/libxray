@@ -54,8 +54,7 @@ jobs:
         run: |
           git clone --depth=1 --single-branch -b main https://github.com/xtls/libxray.git
           python libxray/build/main.py windows
-          ls
-          ls libxray
+          ls libxray/windows_dll
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v6.0.0
