@@ -13,7 +13,7 @@ jobs:
           python3 libxray/build/main.py linux
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7
         with:
           name: linux
           path: libxray/linux_so/libXray.so
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@v6.2.0
+        uses: actions/setup-go@v6
         with:
           go-version: 'stable' 
           check-latest: true
@@ -42,7 +42,7 @@ jobs:
           python3 libxray/build/main.py android
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7
         with:
           name: android
           path: libxray/libXray.aar
@@ -54,10 +54,9 @@ jobs:
         run: |
           git clone --depth=1 --single-branch -b main https://github.com/xtls/libxray.git
           python libxray/build/main.py windows
-          ls libxray/windows_dll
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7
         with:
           name: windows
-          path: libxray/windows_dll/*.dll  
+          path: libxray/windows_dll/libXray.dll
